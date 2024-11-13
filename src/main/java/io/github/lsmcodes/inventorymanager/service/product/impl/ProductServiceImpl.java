@@ -8,10 +8,11 @@ import org.springframework.stereotype.Service;
 
 import io.github.lsmcodes.inventorymanager.dto.product.ProductRequestDTO;
 import io.github.lsmcodes.inventorymanager.dto.product.ProductResponseDTO;
+import io.github.lsmcodes.inventorymanager.exception.CodeAlreadyExistsException;
+import io.github.lsmcodes.inventorymanager.exception.ProductNotFoundException;
 import io.github.lsmcodes.inventorymanager.model.product.Product;
 import io.github.lsmcodes.inventorymanager.repository.ProductRepository;
 import io.github.lsmcodes.inventorymanager.service.product.ProductService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -36,7 +37,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO findProductByCode(String code) {
         Product foundProduct = productRepository.findByCode(code)
-                .orElseThrow(() -> new EntityNotFoundException());
+                .orElseThrow(() -> new ProductNotFoundException("There is no product with the provided code"));
         return foundProduct.toResponseDTO();
     }
 
@@ -83,18 +84,19 @@ public class ProductServiceImpl implements ProductService {
 
     private void verifyProductDoesNotExist(String code) {
         if (productRepository.existsByCode(code)) {
-            throw new IllegalArgumentException();
+            throw new CodeAlreadyExistsException("The provided code is already in use by another product");
         }
     }
 
     private void verifyProductExists(UUID id) {
         if (!productRepository.existsById(id)) {
-            throw new EntityNotFoundException();
+            throw new ProductNotFoundException("There is no product with the provided id");
         }
     }
 
     private Product findProductOrThrow(UUID id) {
-        return productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException());
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("There is no product with the provided id"));
     }
 
 }
