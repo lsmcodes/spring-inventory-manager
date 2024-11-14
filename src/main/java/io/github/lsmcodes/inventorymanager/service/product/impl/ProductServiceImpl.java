@@ -11,7 +11,7 @@ import io.github.lsmcodes.inventorymanager.dto.product.ProductResponseDTO;
 import io.github.lsmcodes.inventorymanager.exception.CodeAlreadyExistsException;
 import io.github.lsmcodes.inventorymanager.exception.ProductNotFoundException;
 import io.github.lsmcodes.inventorymanager.model.product.Product;
-import io.github.lsmcodes.inventorymanager.repository.ProductRepository;
+import io.github.lsmcodes.inventorymanager.repository.product.ProductRepository;
 import io.github.lsmcodes.inventorymanager.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 

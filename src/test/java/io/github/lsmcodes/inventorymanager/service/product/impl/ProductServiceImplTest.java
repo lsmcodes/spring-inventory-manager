@@ -25,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import io.github.lsmcodes.inventorymanager.dto.product.ProductRequestDTO;
 import io.github.lsmcodes.inventorymanager.dto.product.ProductResponseDTO;
 import io.github.lsmcodes.inventorymanager.model.product.Product;
-import io.github.lsmcodes.inventorymanager.repository.ProductRepository;
+import io.github.lsmcodes.inventorymanager.repository.product.ProductRepository;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
@@ -130,7 +130,6 @@ public class ProductServiceImplTest {
     @DisplayName("Should call the repository findById and save methods when increasing a product quantity")
     public void increaseProductQuantity() {
         ProductRequestDTO requestDTO = getValidRequestDTO();
-        when(productRepository.existsById(id)).thenReturn(true);
         when(productRepository.findById(id)).thenReturn(Optional.of(requestDTO.toEntity()));
 
         requestDTO.setQuantity(14);
@@ -145,7 +144,6 @@ public class ProductServiceImplTest {
     @DisplayName("Should call the repository FindById and save methods when decreasing a product quantity")
     public void decreaseProductQuantity() {
         ProductRequestDTO requestDTO = getValidRequestDTO();
-        when(productRepository.existsById(id)).thenReturn(true);
         when(productRepository.findById(id)).thenReturn(Optional.of(requestDTO.toEntity()));
 
         requestDTO.setQuantity(6);

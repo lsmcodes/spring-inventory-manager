@@ -1,4 +1,4 @@
-package io.github.lsmcodes.inventorymanager.repository;
+package io.github.lsmcodes.inventorymanager.repository.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

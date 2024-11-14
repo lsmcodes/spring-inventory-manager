@@ -1,4 +1,4 @@
-package io.github.lsmcodes.inventorymanager.repository;
+package io.github.lsmcodes.inventorymanager.repository.product;
 
 import java.util.Optional;
 import java.util.UUID;
