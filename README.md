@@ -56,3 +56,20 @@ The API provides the following endpoints:
   "quantity": 12
 }
 ```
+
+### Inventory Event
+
+| URI                                 | Method | Action                            | Parameters | Request Body           |
+| ----------------------------------- | ------ | --------------------------------- | ---------- | ---------------------- |
+| `api/inventory-events/{product-id}` | POST   | Creates a new inventory event     | productId  | Inventory Event Schema |
+| `api/inventory-events/{id}`         | GET    | Retrieves a inventory event by id | id         | N/A                    |
+| `api/inventory-events`              | GET    | Retrieves all inventory events    | N/A        | N/A                    |
+
+#### Inventory Event Schema
+
+```json
+{
+  "eventType": "STOCK_IN",
+  "quantity": 20
+}
+```
