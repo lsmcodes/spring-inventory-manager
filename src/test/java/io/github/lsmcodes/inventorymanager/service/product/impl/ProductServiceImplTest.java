@@ -25,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import io.github.lsmcodes.inventorymanager.dto.product.ProductRequestDTO;
 import io.github.lsmcodes.inventorymanager.dto.product.ProductResponseDTO;
 import io.github.lsmcodes.inventorymanager.model.product.Product;
-import io.github.lsmcodes.inventorymanager.repository.ProductRepository;
+import io.github.lsmcodes.inventorymanager.repository.product.ProductRepository;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
@@ -52,10 +52,10 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should call the repository findById method when searching a product by id")
+    @DisplayName("Should call the repository findByIdAndActive method when searching a product by id")
     public void findProductByIdTest() {
         ProductRequestDTO requestDTO = getValidRequestDTO();
-        when(productRepository.findById(id)).thenReturn(Optional.of(requestDTO.toEntity()));
+        when(productRepository.findByIdAndActive(id)).thenReturn(Optional.of(requestDTO.toEntity()));
 
         ProductResponseDTO responseDTO = productServiceImpl.findProductById(id);
 
@@ -64,11 +64,11 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should call the repository findByCode method when searching a product by code")
+    @DisplayName("Should call the repository findByCodeAndActive method when searching a product by code")
     public void findProductByCodeTest() {
         ProductRequestDTO requestDTO = getValidRequestDTO();
         String code = requestDTO.getCode();
-        when(productRepository.findByCode(code)).thenReturn(Optional.of(requestDTO.toEntity()));
+        when(productRepository.findByCodeAndActive(code)).thenReturn(Optional.of(requestDTO.toEntity()));
 
         ProductResponseDTO responseDTO = productServiceImpl.findProductByCode(code);
 
@@ -77,37 +77,39 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should call the repository findByNameContainingIgnoreCase method when searching products by name")
+    @DisplayName("Should call the repository findByNameContainingIgnoreCaseAndActive method when searching products by name")
     public void findProductsByNameTest() {
         String name = "notebook";
         Pageable pageable = PageRequest.of(0, 10);
         Product product = getValidRequestDTO().toEntity();
-        when(productRepository.findByNameContainingIgnoreCase(name, pageable))
+        when(productRepository.findByNameContainingIgnoreCaseAndActive(name, pageable))
                 .thenReturn(new PageImpl<>(List.of(product)));
 
         Page<ProductResponseDTO> foundPage = productServiceImpl.findProductsByName(name, pageable);
 
-        assertThat(product).usingRecursiveComparison().isEqualTo(foundPage.getContent().getFirst());
+        assertThat(product).usingRecursiveComparison().ignoringFields("id", "status")
+                .isEqualTo(foundPage.getContent().getFirst());
     }
 
     @Test
-    @DisplayName("Should call the repository findAll method when searching all products")
+    @DisplayName("Should call the repository findAllActive method when searching all products")
     public void findAllProductsTest() {
         Pageable pageable = PageRequest.of(0, 10);
         Product product = getValidRequestDTO().toEntity();
-        when(productRepository.findAll(pageable))
+        when(productRepository.findAllActive(pageable))
                 .thenReturn(new PageImpl<>(List.of(product)));
 
         Page<ProductResponseDTO> foundPage = productServiceImpl.findAllProducts(pageable);
 
-        assertThat(product).usingRecursiveComparison().isEqualTo(foundPage.getContent().getFirst());
+        assertThat(product).usingRecursiveComparison().ignoringFields("id", "status")
+                .isEqualTo(foundPage.getContent().getFirst());
     }
 
     @Test
     @DisplayName("Should call the repository save method when updating a product")
     public void updateProductTest() {
         ProductRequestDTO requestDTO = getValidRequestDTO();
-        when(productRepository.existsById(id)).thenReturn(true);
+        when(productRepository.existsByIdAndActive(id)).thenReturn(true);
         when(productRepository.save(any(Product.class))).thenReturn(requestDTO.toEntity());
 
         ProductResponseDTO responseDTO = productServiceImpl.updateProduct(id, requestDTO);
@@ -117,21 +119,20 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should call the repository deleteById method when deleting a product by id")
+    @DisplayName("Should call the repository softDeleteById method when deleting a product by id")
     public void deleteProductByIdTest() {
-        when(productRepository.existsById(id)).thenReturn(true);
+        when(productRepository.existsByIdAndActive(id)).thenReturn(true);
 
         productServiceImpl.deleteProductById(id);
 
-        verify(productRepository).deleteById(id);
+        verify(productRepository).softDeleteById(id);
     }
 
     @Test
-    @DisplayName("Should call the repository findById and save methods when increasing a product quantity")
+    @DisplayName("Should call the repository findByIdAndActive and save methods when increasing a product quantity")
     public void increaseProductQuantity() {
         ProductRequestDTO requestDTO = getValidRequestDTO();
-        when(productRepository.existsById(id)).thenReturn(true);
-        when(productRepository.findById(id)).thenReturn(Optional.of(requestDTO.toEntity()));
+        when(productRepository.findByIdAndActive(id)).thenReturn(Optional.of(requestDTO.toEntity()));
 
         requestDTO.setQuantity(14);
         when(productRepository.save(any(Product.class))).thenReturn(requestDTO.toEntity());
@@ -142,11 +143,10 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should call the repository FindById and save methods when decreasing a product quantity")
+    @DisplayName("Should call the repository findByIdAndActive and save methods when decreasing a product quantity")
     public void decreaseProductQuantity() {
         ProductRequestDTO requestDTO = getValidRequestDTO();
-        when(productRepository.existsById(id)).thenReturn(true);
-        when(productRepository.findById(id)).thenReturn(Optional.of(requestDTO.toEntity()));
+        when(productRepository.findByIdAndActive(id)).thenReturn(Optional.of(requestDTO.toEntity()));
 
         requestDTO.setQuantity(6);
         when(productRepository.save(any(Product.class))).thenReturn(requestDTO.toEntity());

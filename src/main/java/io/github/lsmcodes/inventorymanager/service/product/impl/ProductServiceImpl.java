@@ -11,8 +11,9 @@ import io.github.lsmcodes.inventorymanager.dto.product.ProductResponseDTO;
 import io.github.lsmcodes.inventorymanager.exception.CodeAlreadyExistsException;
 import io.github.lsmcodes.inventorymanager.exception.ProductNotFoundException;
 import io.github.lsmcodes.inventorymanager.model.product.Product;
-import io.github.lsmcodes.inventorymanager.repository.ProductRepository;
+import io.github.lsmcodes.inventorymanager.repository.product.ProductRepository;
 import io.github.lsmcodes.inventorymanager.service.product.ProductService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -36,20 +37,20 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDTO findProductByCode(String code) {
-        Product foundProduct = productRepository.findByCode(code)
+        Product foundProduct = productRepository.findByCodeAndActive(code)
                 .orElseThrow(() -> new ProductNotFoundException("There is no product with the provided code"));
         return foundProduct.toResponseDTO();
     }
 
     @Override
     public Page<ProductResponseDTO> findProductsByName(String name, Pageable pageable) {
-        Page<Product> foundProducts = productRepository.findByNameContainingIgnoreCase(name, pageable);
+        Page<Product> foundProducts = productRepository.findByNameContainingIgnoreCaseAndActive(name, pageable);
         return foundProducts.map(product -> product.toResponseDTO());
     }
 
     @Override
     public Page<ProductResponseDTO> findAllProducts(Pageable pageable) {
-        Page<Product> foundProducts = productRepository.findAll(pageable);
+        Page<Product> foundProducts = productRepository.findAllActive(pageable);
         return foundProducts.map(product -> product.toResponseDTO());
     }
 
@@ -62,10 +63,11 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(updatedProduct).toResponseDTO();
     }
 
+    @Transactional
     @Override
     public void deleteProductById(UUID id) {
         verifyProductExists(id);
-        productRepository.deleteById(id);
+        productRepository.softDeleteById(id);
     }
 
     @Override
@@ -83,19 +85,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void verifyProductDoesNotExist(String code) {
-        if (productRepository.existsByCode(code)) {
+        if (productRepository.existsByCodeAndActive(code)) {
             throw new CodeAlreadyExistsException("The provided code is already in use by another product");
         }
     }
 
     private void verifyProductExists(UUID id) {
-        if (!productRepository.existsById(id)) {
+        if (!productRepository.existsByIdAndActive(id)) {
             throw new ProductNotFoundException("There is no product with the provided id");
         }
     }
 
     private Product findProductOrThrow(UUID id) {
-        return productRepository.findById(id)
+        return productRepository.findByIdAndActive(id)
                 .orElseThrow(() -> new ProductNotFoundException("There is no product with the provided id"));
     }
 

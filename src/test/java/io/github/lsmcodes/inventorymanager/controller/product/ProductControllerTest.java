@@ -38,7 +38,7 @@ import io.github.lsmcodes.inventorymanager.service.product.ProductService;
 
 @ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
-@WebMvcTest
+@WebMvcTest(ProductController.class)
 @AutoConfigureMockMvc
 public class ProductControllerTest {
 
