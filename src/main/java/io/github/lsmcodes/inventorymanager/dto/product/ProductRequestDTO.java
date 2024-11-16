@@ -27,7 +27,7 @@ public class ProductRequestDTO {
     private String code;
 
     @NotNull(message = "Name cannot be null")
-    @Length(max = 50, message = "Name must contain 100 characters or less")
+    @Length(max = 100, message = "Name must contain 100 characters or less")
     private String name;
 
     @NotNull(message = "Price cannot be null")
