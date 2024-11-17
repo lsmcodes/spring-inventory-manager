@@ -15,11 +15,14 @@ import io.github.lsmcodes.inventorymanager.model.product.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-    @Query("SELECT COUNT(p) > 0 FROM Product p WHERE p.id = :id AND p.status = 'ACTIVE'")
+    @Query("SELECT EXISTS (FROM Product p WHERE p.id = :id AND p.status = 'ACTIVE')")
     boolean existsByIdAndActive(UUID id);
 
-    @Query("SELECT COUNT(p) > 0 FROM Product p WHERE p.code = :code AND p.status = 'ACTIVE'")
+    @Query("SELECT EXISTS (SELECT 1 FROM Product p WHERE p.code = :code AND p.status = 'ACTIVE')")
     boolean existsByCodeAndActive(String code);
+
+    @Query("SELECT EXISTS (SELECT 1 FROM Product p WHERE p.code = :code AND p.status = 'ACTIVE' AND p.id <> :id)")
+    boolean existsByCodeAndActiveAndNotId(String code, UUID id);
 
     @Query("SELECT p FROM Product p WHERE p.status = 'ACTIVE' AND p.id = :id")
     Optional<Product> findByIdAndActive(UUID id);

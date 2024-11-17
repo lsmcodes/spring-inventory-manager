@@ -24,7 +24,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDTO createProduct(ProductRequestDTO dto) {
-        verifyProductDoesNotExist(dto.getCode());
+        if (productRepository.existsByCodeAndActive(dto.getCode())) {
+            throw new CodeAlreadyExistsException("The provided code is already in use by another product");
+        }
         Product newProduct = dto.toEntity();
         return productRepository.save(newProduct).toResponseDTO();
     }
@@ -57,7 +59,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO updateProduct(UUID id, ProductRequestDTO dto) {
         verifyProductExists(id);
-        verifyProductDoesNotExist(dto.getCode());
+        if (productRepository.existsByCodeAndActiveAndNotId(dto.getCode(), id)) {
+            throw new CodeAlreadyExistsException("The provided code is already in use by another product");
+        }
         Product updatedProduct = dto.toEntity();
         updatedProduct.setId(id);
         return productRepository.save(updatedProduct).toResponseDTO();
@@ -82,12 +86,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = findProductOrThrow(id);
         product.setQuantity(product.getQuantity() - quantity);
         return productRepository.save(product).toResponseDTO();
-    }
-
-    private void verifyProductDoesNotExist(String code) {
-        if (productRepository.existsByCodeAndActive(code)) {
-            throw new CodeAlreadyExistsException("The provided code is already in use by another product");
-        }
     }
 
     private void verifyProductExists(UUID id) {
