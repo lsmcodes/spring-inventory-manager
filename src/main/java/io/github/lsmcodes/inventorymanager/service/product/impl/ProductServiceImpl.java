@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import io.github.lsmcodes.inventorymanager.dto.product.ProductRequestDTO;
 import io.github.lsmcodes.inventorymanager.dto.product.ProductResponseDTO;
 import io.github.lsmcodes.inventorymanager.exception.CodeAlreadyExistsException;
+import io.github.lsmcodes.inventorymanager.exception.InvalidInventoryEventException;
 import io.github.lsmcodes.inventorymanager.exception.ProductNotFoundException;
 import io.github.lsmcodes.inventorymanager.model.product.Product;
 import io.github.lsmcodes.inventorymanager.repository.product.ProductRepository;
@@ -84,6 +85,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO decreaseProductQuantity(UUID id, int quantity) {
         Product product = findProductOrThrow(id);
+        if (product.getQuantity() < quantity) {
+            throw new InvalidInventoryEventException("Insufficient stock: unable to proccess the requested quantity");
+        }
         product.setQuantity(product.getQuantity() - quantity);
         return productRepository.save(product).toResponseDTO();
     }
